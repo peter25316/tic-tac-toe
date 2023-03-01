@@ -95,7 +95,9 @@ const App = () => {
         </button>
       </div>
       <footer>
-        &copy; {new Date().getFullYear()} Peter Huynh. All rights reserved
+        <span>
+          &copy; {new Date().getFullYear()} Peter Huynh. All rights reserved
+        </span>
         <a target="_blank" href="https://peter25316.vercel.app/">
           Infomation
           <FiExternalLink />
