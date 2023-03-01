@@ -1,17 +1,23 @@
 import { useState } from "react";
+import { FiExternalLink } from "react-icons/fi";
 
 const App = () => {
   const [board, setBoard] = useState(Array(9).fill(null));
-  const [player, setPlayer] = useState("X");
+  const [xIsNext, setXIsNext] = useState(true);
+  const [winner, setWinner] = useState(null);
 
-  const handleClick = (index) => {
+  const handleClick = (i) => {
+    if (winner || board[i]) {
+      return;
+    }
     const newBoard = [...board];
-    newBoard[index] = player;
+    newBoard[i] = xIsNext ? "X" : "O";
     setBoard(newBoard);
-    setPlayer(player === "X" ? "O" : "X");
+    setXIsNext(!xIsNext);
+    calculateWinner(newBoard);
   };
 
-  const checkWinner = () => {
+  const calculateWinner = (squares) => {
     const lines = [
       [0, 1, 2],
       [3, 4, 5],
@@ -22,45 +28,79 @@ const App = () => {
       [0, 4, 8],
       [2, 4, 6],
     ];
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return board[a];
+    for (const element of lines) {
+      const [a, b, c] = element;
+      if (
+        squares[a] &&
+        squares[a] === squares[b] &&
+        squares[a] === squares[c]
+      ) {
+        setWinner(squares[a]);
+        break;
       }
     }
-    return null;
   };
 
-  const resetBoard = () => {
+  const renderSquare = (i) => {
+    return (
+      <button
+        className={`square ${winner ? "disabled" : ""}`}
+        disabled={winner || board[i]}
+        onClick={() => handleClick(i)}
+      >
+        {board[i]}
+      </button>
+    );
+  };
+
+  const resetGame = () => {
     setBoard(Array(9).fill(null));
-    setPlayer("X");
+    setXIsNext(true);
+    setWinner(null);
   };
 
-  const winner = checkWinner();
-  const status =
-    winner !== null
-      ? `Winner: ${winner}`
-      : board.every((square) => square !== null)
-      ? "Tie"
-      : `Next player: ${player}`;
+  let status;
+  if (winner) {
+    status = `Winner: ${winner}`;
+  } else if (board.every((square) => square !== null)) {
+    status = "Draw!";
+  } else {
+    status = `Next player: ${xIsNext ? "X" : "O"}`;
+  }
 
   return (
-    <div className="App">
-      <div className="board">
-        {board.map((square, index) => (
-          <div
-            key={index}
-            className="square"
-            onClick={() => handleClick(index)}
-          >
-            {square}
+    <div className="app">
+      <div className="game">
+        <h1>Tic Tac Toe</h1>
+        <div className="game-board">
+          <div className="board-row">
+            {renderSquare(0)}
+            {renderSquare(1)}
+            {renderSquare(2)}
           </div>
-        ))}
+          <div className="board-row">
+            {renderSquare(3)}
+            {renderSquare(4)}
+            {renderSquare(5)}
+          </div>
+          <div className="board-row">
+            {renderSquare(6)}
+            {renderSquare(7)}
+            {renderSquare(8)}
+          </div>
+        </div>
+        <div className="status">{status}</div>
+        <button className="reset-button" onClick={resetGame}>
+          Reset Game
+        </button>
       </div>
-      <div className="status">{status}</div>
-      <button className="reset" onClick={resetBoard}>
-        Reset
-      </button>
+      <footer>
+        &copy; {new Date().getFullYear()} Peter Huynh. All rights reserved
+        <a target="_blank" href="https://peter25316.vercel.app/">
+          Infomation
+          <FiExternalLink />
+        </a>
+      </footer>
     </div>
   );
 };
